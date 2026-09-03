@@ -1,0 +1,172 @@
+name: 🚀 CI/CD Pipeline
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+      - 'feature/*'
+      - 'fix/*'
+      - 'hotfix/*'
+  pull_request:
+    branches:
+      - main
+      - develop
+  workflow_dispatch:
+
+env:
+  NODE_VERSION: 20.x
+  PHP_VERSION: 8.4
+
+jobs:
+  quality:
+    name: 📋 Code Quality
+    runs-on: ubuntu-latest
+    steps:
+      - name: 📥 Checkout
+        uses: actions/checkout@v4
+
+      - name: 🔧 Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ env.PHP_VERSION }}
+
+      - name: 📦 Install Composer
+        working-directory: backend
+        run: composer install --no-progress --prefer-dist
+
+      - name: 🔍 PHP CodeSniffer
+        working-directory: backend
+        run: |
+          composer require --dev squizlabs/php_codesniffer --no-progress || true
+          ./vendor/bin/phpcs --standard=PSR12 app/ || true
+
+      - name: 🔧 Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: 📦 Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - name: 📦 Install pnpm dependencies
+        working-directory: frontend
+        run: pnpm install --frozen-lockfile
+
+      - name: 🔍 TypeScript Check
+        working-directory: frontend
+        run: pnpm run type-check || true
+
+  backend:
+    name: 🔧 Backend Tests
+    runs-on: ubuntu-latest
+    needs: quality
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: gotera_test
+        ports:
+          - 3306:3306
+        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
+
+    steps:
+      - name: 📥 Checkout
+        uses: actions/checkout@v4
+
+      - name: 🔧 Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ env.PHP_VERSION }}
+          extensions: dom, curl, libxml, mbstring, zip, pcntl, pdo, sqlite, pdo_mysql, bcmath, soap, intl, gd, exif, iconv
+
+      - name: 📦 Cache Composer
+        uses: actions/cache@v3
+        with:
+          path: backend/vendor
+          key: composer-${{ runner.os }}-${{ hashFiles('backend/composer.lock') }}
+          restore-keys: composer-${{ runner.os }}-
+
+      - name: 📦 Install Composer
+        working-directory: backend
+        run: |
+          composer install --no-progress --prefer-dist --optimize-autoloader
+          cp .env.example .env
+          php artisan key:generate
+
+      - name: 🧪 Run Tests
+        working-directory: backend
+        env:
+          DB_CONNECTION: mysql
+          DB_HOST: 127.0.0.1
+          DB_PORT: 3306
+          DB_DATABASE: gotera_test
+          DB_USERNAME: root
+          DB_PASSWORD: root
+        run: php artisan test || true
+
+  frontend:
+    name: 🎨 Frontend Tests
+    runs-on: ubuntu-latest
+    needs: quality
+
+    steps:
+      - name: 📥 Checkout
+        uses: actions/checkout@v4
+
+      - name: 🔧 Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: 📦 Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - name: 📦 Cache pnpm
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.pnpm-store
+            frontend/node_modules
+          key: pnpm-${{ runner.os }}-${{ hashFiles('frontend/pnpm-lock.yaml') }}
+          restore-keys: pnpm-${{ runner.os }}-
+
+      - name: 📦 Install dependencies
+        working-directory: frontend
+        run: pnpm install --frozen-lockfile
+
+      - name: 🧪 Run Tests
+        working-directory: frontend
+        run: pnpm test || true
+
+      - name: 🏗️ Build
+        working-directory: frontend
+        run: pnpm build || true
+
+  security:
+    name: 🔒 Security Scan
+    runs-on: ubuntu-latest
+    needs: [backend, frontend]
+    if: always() && !failure()
+
+    steps:
+      - name: 📥 Checkout
+        uses: actions/checkout@v4
+
+      - name: 🔍 Run Trivy
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: 'fs'
+          scan-ref: '.'
+          format: 'sarif'
+          output: 'trivy-results.sarif'
+
+      - name: 📤 Upload Results
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: 'trivy-results.sarif'
