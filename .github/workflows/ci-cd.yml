@@ -149,7 +149,7 @@ jobs:
         run: pnpm build || true
 
   # ==========================================
-  # FIXED: Security Scan with Proper Permissions
+  # SECURITY SCAN - WITHOUT UPLOAD
   # ==========================================
   security:
     name: 🔒 Security Scan
@@ -157,23 +157,17 @@ jobs:
     needs: [backend, frontend]
     if: always() && !failure()
     
-    # ✅ THIS IS THE KEY FIX
-    permissions:
-      security-events: write
-      contents: read
-      actions: read
-
     steps:
       - name: 📥 Checkout
         uses: actions/checkout@v4
 
-      - name: 📦 Run Composer Security Check
+      - name: 🔍 Run Composer Security Check
         working-directory: backend
         run: |
           echo "🔍 Checking Composer dependencies..."
           composer audit || true
 
-      - name: 🔍 Run npm/pnpm Security Check
+      - name: 🔍 Run npm Security Check
         working-directory: frontend
         run: |
           echo "🔍 Checking npm dependencies..."
@@ -184,16 +178,8 @@ jobs:
         with:
           scan-type: 'fs'
           scan-ref: '.'
-          format: 'sarif'
-          output: 'trivy-results.sarif'
+          format: 'table'
+          exit-code: '0'
 
-      # ✅ NOW THIS WILL WORK (with permissions above)
-      - name: 📤 Upload Results to GitHub Security
-        uses: github/codeql-action/upload-sarif@v4
-        with:
-          sarif_file: 'trivy-results.sarif'
-          token: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: ✅ Security Check Complete
-        run: |
-          echo "✅ Security scan uploaded successfully!"
+      - name: ✅ Security Scan Complete
+        run: echo "✅ Security scan completed! Results are in the logs above."
