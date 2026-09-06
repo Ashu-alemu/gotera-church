@@ -1,121 +1,33 @@
 import { useState } from 'react'
-import heroImg from './assets/hero.png'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
 import './App.css'
 
 function App() {
-  const [count, setCount] = useState(0)
+  const [menuOpen, setMenuOpen] = useState(false)
+  const [language, setLanguage] = useState('EN')
+  const [showAppointment, setShowAppointment] = useState(false)
+  const [submitted, setSubmitted] = useState(false)
+  const closeMenu = () => setMenuOpen(false)
 
   return (
-    <>
-      <section id="center">
-        <div className="hero">
-          <img src={heroImg} className="base" width="170" height="179" alt="" />
-          <img src={reactLogo} className="framework" alt="React logo" />
-          <img src={viteLogo} className="vite" alt="Vite logo" />
-        </div>
-        <div>
-          <h1>Get started</h1>
-          <p>
-            Edit <code>src/App.jsx</code> and save to test <code>HMR</code>
-          </p>
-        </div>
-        <button
-          type="button"
-          className="counter"
-          onClick={() => setCount((count) => count + 1)}
-        >
-          Count is {count}
-        </button>
-      </section>
+    <div className="site-shell">
+      <div className="notice-bar"><span>✦</span> Welcome to Gotera Church <span className="notice-link">A place to belong, believe, and become →</span></div>
+      <header className="site-header">
+        <a className="brand" href="#home" onClick={closeMenu} aria-label="Gotera Church home"><span className="brand-mark">✦</span><span><strong>GOTERA</strong><small>CHURCH</small></span></a>
+        <button className="menu-toggle" onClick={() => setMenuOpen(!menuOpen)} aria-expanded={menuOpen} aria-label="Toggle menu">☰</button>
+        <nav className={menuOpen ? 'nav-links open' : 'nav-links'} aria-label="Main navigation"><a href="#home" onClick={closeMenu}>Home</a><a href="#about" onClick={closeMenu}>About us</a><a href="#services" onClick={closeMenu}>Worship</a><a href="#events" onClick={closeMenu}>Events</a><a href="#contact" onClick={closeMenu}>Contact</a></nav>
+        <div className="header-actions"><button className="language" onClick={() => setLanguage(language === 'EN' ? 'አማ' : 'EN')} aria-label="Switch language">{language}⌄</button><button className="button button-dark" onClick={() => { setShowAppointment(true); setSubmitted(false) }}>Plan a visit <span>↗</span></button></div>
+      </header>
 
-      <div className="ticks"></div>
-
-      <section id="next-steps">
-        <div id="docs">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#documentation-icon"></use>
-          </svg>
-          <h2>Documentation</h2>
-          <p>Your questions, answered</p>
-          <ul>
-            <li>
-              <a href="https://vite.dev/" target="_blank">
-                <img className="logo" src={viteLogo} alt="" />
-                Explore Vite
-              </a>
-            </li>
-            <li>
-              <a href="https://react.dev/" target="_blank">
-                <img className="button-icon" src={reactLogo} alt="" />
-                Learn more
-              </a>
-            </li>
-          </ul>
-        </div>
-        <div id="social">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#social-icon"></use>
-          </svg>
-          <h2>Connect with us</h2>
-          <p>Join the Vite community</p>
-          <ul>
-            <li>
-              <a href="https://github.com/vitejs/vite" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#github-icon"></use>
-                </svg>
-                GitHub
-              </a>
-            </li>
-            <li>
-              <a href="https://chat.vite.dev/" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#discord-icon"></use>
-                </svg>
-                Discord
-              </a>
-            </li>
-            <li>
-              <a href="https://x.com/vite_js" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#x-icon"></use>
-                </svg>
-                X.com
-              </a>
-            </li>
-            <li>
-              <a href="https://bsky.app/profile/vite.dev" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#bluesky-icon"></use>
-                </svg>
-                Bluesky
-              </a>
-            </li>
-          </ul>
-        </div>
-      </section>
-
-      <div className="ticks"></div>
-      <section id="spacer"></section>
-    </>
+      <main>
+        <section className="hero-section" id="home"><div className="hero-copy"><p className="eyebrow">GOTERA 44TU FELEGE YORDANOS</p><h1>Rooted in faith.<br /><em>Growing together.</em></h1><p className="hero-text">A welcoming community in Addis Ababa where every generation can encounter God, find family, and live with purpose.</p><div className="hero-actions"><button className="button button-primary" onClick={() => document.querySelector('#services').scrollIntoView({ behavior: 'smooth' })}>Join us this Sunday <span>↗</span></button><a className="text-link" href="#about">Discover our story <span>→</span></a></div><div className="hero-meta"><div className="avatars"><span>AM</span><span>YK</span><span>+</span></div><p><strong>Everyone is welcome</strong><br />There is a place for you here.</p></div></div><div className="hero-art" aria-label="Warm photo of the church community"><div className="sun"></div><div className="arch"><div className="arch-inner"><span>✦</span></div></div><div className="art-card"><strong>Sunday gathering</strong><small>Every Sunday · 8:00 & 10:30 AM</small></div></div></section>
+        <section className="welcome-strip"><p className="eyebrow">A HOME FOR YOUR FAITH</p><h2>Come as you are.<br /><em>Stay for the journey.</em></h2><p>We are a family of believers seeking to love God, serve our city, and walk with one another through every season of life.</p><a href="#about" className="round-arrow">↘</a></section>
+        <section className="content-section" id="services"><div className="section-heading"><div><p className="eyebrow">WEEKLY RHYTHMS</p><h2>Make space for what <em>matters.</em></h2></div><p>Whether you are exploring faith or have followed Jesus for years, our gatherings are designed to help you meet with God and find community.</p></div><div className="service-grid"><article className="service-card featured"><span className="card-number">01</span><span className="service-icon">◒</span><h3>Sunday worship</h3><p>Contemporary worship, biblical teaching, and a warm welcome for the whole family.</p><a href="#contact">Plan your Sunday <span>↗</span></a></article><article className="service-card"><span className="card-number">02</span><span className="service-icon">◌</span><h3>Small groups</h3><p>Real conversations, shared meals, and meaningful friendships throughout the week.</p><a href="#contact">Find a group <span>↗</span></a></article><article className="service-card"><span className="card-number">03</span><span className="service-icon">✧</span><h3>Prayer & care</h3><p>We believe prayer changes things. Let us walk with you through life’s highs and lows.</p><a href="#contact">Request prayer <span>↗</span></a></article></div></section>
+        <section className="events-section" id="events"><div className="events-intro"><p className="eyebrow">WHAT'S HAPPENING</p><h2>There is always <em>room at the table.</em></h2><p>Make memories, build friendships, and take your next step with us.</p><a className="text-link" href="#contact">View all events <span>→</span></a></div><div className="event-list"><article><time><strong>14</strong><span>SEP<br />2026</span></time><div><p className="event-type">COMMUNITY</p><h3>Family & friends picnic</h3><p>09:00 AM · Gotera Church grounds</p></div><span className="event-arrow">↗</span></article><article><time><strong>20</strong><span>SEP<br />2026</span></time><div><p className="event-type">WORSHIP</p><h3>Night of worship & prayer</h3><p>06:00 PM · Main sanctuary</p></div><span className="event-arrow">↗</span></article><article><time><strong>27</strong><span>SEP<br />2026</span></time><div><p className="event-type">GROWTH</p><h3>New here? Start here.</h3><p>After the 10:30 AM service</p></div><span className="event-arrow">↗</span></article></div></section>
+        <section className="cta-section" id="about"><div><p className="eyebrow">YOUR NEXT STEP STARTS HERE</p><h2>We would love to<br /><em>meet you.</em></h2></div><div><p>Church is better when we do it together. Come and see what God is doing in and through the Gotera family.</p><button className="button button-light" onClick={() => { setShowAppointment(true); setSubmitted(false) }}>Plan a visit <span>↗</span></button></div></section>
+      </main>
+      <footer id="contact"><div className="footer-brand"><a className="brand" href="#home"><span className="brand-mark">✦</span><span><strong>GOTERA</strong><small>CHURCH</small></span></a><p>Rooted in faith. Growing together.</p></div><div><p className="footer-label">VISIT US</p><p>Gotera 44tu Felege Yordanos<br />Addis Ababa, Ethiopia</p></div><div><p className="footer-label">CONNECT</p><p><a href="mailto:hello@gotera.church">hello@gotera.church</a><br /><a href="#contact">Instagram · Facebook</a></p></div><div className="footer-bottom">© 2026 Gotera Church <span>Made with faith & purpose ↗</span></div></footer>
+      {showAppointment && <div className="modal-backdrop" onClick={() => setShowAppointment(false)}><div className="modal" role="dialog" aria-modal="true" aria-labelledby="appointment-title" onClick={(event) => event.stopPropagation()}><button className="modal-close" onClick={() => setShowAppointment(false)} aria-label="Close">×</button>{submitted ? <div className="success-state"><span>✦</span><h2>We will see you soon!</h2><p>Thanks for reaching out. Our team will be in touch shortly.</p><button className="button button-primary" onClick={() => setShowAppointment(false)}>Done</button></div> : <><p className="eyebrow">PLAN A VISIT</p><h2 id="appointment-title">We saved you a seat.</h2><p>Tell us a little about yourself and we will help make your first visit easy.</p><form onSubmit={(event) => { event.preventDefault(); setSubmitted(true) }}><label>Name<input required name="name" placeholder="Your name" /></label><label>Email<input required type="email" name="email" placeholder="you@example.com" /></label><label>Message<textarea name="message" placeholder="Anything we should know?" rows="3" /></label><button className="button button-primary" type="submit">Send request <span>↗</span></button></form></>}</div></div>}
+    </div>
   )
 }
 

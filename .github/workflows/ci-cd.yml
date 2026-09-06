@@ -18,6 +18,9 @@ env:
   NODE_VERSION: 20.x
   PHP_VERSION: 8.4
 
+permissions:
+  contents: read
+
 jobs:
   quality:
     name: 📋 Code Quality
@@ -154,6 +157,9 @@ jobs:
   security:
     name: 🔒 Security Scan
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      security-events: write
     needs: [backend, frontend]
     if: always() && !failure()
     
@@ -191,7 +197,7 @@ jobs:
           }
 
       - name: 🔍 Trivy Security Scan
-        uses: aquasecurity/trivy-action@master
+        uses: aquasecurity/trivy-action@0.28.0
         with:
           scan-type: 'fs'
           scan-ref: '.'
