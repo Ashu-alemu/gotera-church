@@ -45,3 +45,7 @@ _ide_helper.php
 
 # Misc
 .terraform/
+
+/vendor/
+/.env
+/storage/*.key
